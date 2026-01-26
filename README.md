@@ -2,13 +2,6 @@
 
 A high-performance, interactive bento-style portfolio dashboard. This project features a glassmorphic UI, real-time system logging, and a modular architecture designed for high-speed navigation and appointment scheduling.
 
-
-
-## 🚀 Live Demo
-**[Insert Your GitHub Pages Link Here]**
-
----
-
 ## 🛠️ System Architecture
 
 ### 1. Command Search Center
