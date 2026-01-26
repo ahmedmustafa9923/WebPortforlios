@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ahmed Mustafa | Systems Architect</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="dark-wallpaper"></div>
+
+<main class="bento-container">
+    <h1 class="rainbow-header">Ahmed Mustafa</h1>
+
+    <div class="search-section">
+        <input type="text" id="main-search" placeholder="Execute system search... [Enter]">
+    </div>
+
+    <div class="bento-grid">
+        <div class="card glass col-2">
+            <span class="tag">Logic.Core</span>
+            <h3>Stack Intelligence</h3>
+            <div class="pill-container">
+                <span class="pill">Python</span><span class="pill">C#</span><span class="pill">JavaScript</span><span class="pill">SQL</span>
+                <span class="pill">HTML</span><span class="pill">Java Script</span><span class="pill">CSS</span>
+            </div>
+        </div>
+
+        <div class="card glass col-2">
+            <span class="tag">Environment</span>
+            <h3>Integrated IDEs</h3>
+            <div class="pill-container">
+                <span class="pill">Unity</span><span class="pill">Xcode</span><span class="pill">PyCharm</span><span class="pill">Docker</span>
+            </div>
+        </div>
+
+        <div class="card glass qr-card" onclick="triggerHandshake('GitHub', 'https://github.com')">
+            <span class="tag">GitHub</span>
+            <div class="qr-placeholder"><img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://github.com" alt="QR"></div>
+            <p class="qr-hint">Source</p>
+        </div>
+        <div class="card glass qr-card" onclick="triggerHandshake('LinkedIn', 'https://linkedin.com')">
+            <span class="tag">LinkedIn</span>
+            <div class="qr-placeholder"><img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://linkedin.com" alt="QR"></div>
+            <p class="qr-hint">Connect</p>
+        </div>
+        <div class="card glass qr-card" onclick="triggerHandshake('Fiverr', 'https://fiverr.com')">
+            <span class="tag">Fiverr</span>
+            <div class="qr-placeholder"><img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://fiverr.com" alt="QR"></div>
+            <p class="qr-hint">Hire</p>
+        </div>
+        <div class="card glass qr-card" onclick="triggerCopy('ahmed.mustafa9923@gmailcom')">
+            <span class="tag">Connect</span>
+            <div class="qr-placeholder"><img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=mailto:ahmed@example.com" alt="QR"></div>
+            <p class="qr-hint">Email</p>
+        </div>
+
+        <div class="card glass col-4">
+            <span class="tag">Availability</span>
+            <h3>System Scheduler</h3>
+            <div class="calendar-wrapper">
+                <div class="calendar-header-days">
+                    <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+                </div>
+                <div id="calendar-grid" class="calendar-days"></div>
+            </div>
+            <div class="calendar-footer">
+                <p id="selected-date">Active Selection: Jan 17, 2026</p>
+                <button id="init-booking" class="action-btn">Initialize Appointment</button>
+            </div>
+        </div>
+
+        <div class="card glass col-4">
+            <span class="tag">Monitoring.Log</span>
+            <div id="live-log" class="log-box">
+                <p>> [SYSTEM]: Initialization Complete.</p>
+            </div>
+        </div>
+    </div>
+</main>
+
+<div id="booking-modal" class="modal-overlay">
+    <div class="modal-content">
+        <span class="tag">Appointment: Booking</span>
+        <h2 id="modal-date-display">For: Jan 17, 2026</h2>
+        <div id="form-container">
+            <div class="input-group">
+                <label>Full Name</label>
+                <input type="text" id="user-name">
+            </div>
+            <div class="input-group">
+                <label>Reason for appointment</label>
+                <textarea id="user-desc"></textarea>
+            </div>
+            <p id="error-msg" class="error-text">! ERROR: FIELDS REQUIRED</p>
+            <div class="modal-actions">
+                <button id="close-modal" class="btn-cancel">Cancel</button>
+                <button id="confirm-booking" class="action-btn">Confirm</button>
+            </div>
+        </div>
+        <div id="success-view" style="display:none; text-align:center;">
+            <h3>✓ Protocol Initiated</h3>
+        </div>
+    </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
