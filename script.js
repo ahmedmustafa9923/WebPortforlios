@@ -1,152 +1,100 @@
-document.addEventListener('DOMContentLoaded', () => {
+let viewDate = new Date();
+let selectedSlots = [];
+let tempDate = "";
+
+function renderCalendar() {
     const grid = document.getElementById('calendar-grid');
-    const log = document.getElementById('live-log');
-    const modal = document.getElementById('booking-modal');
+    const display = document.getElementById('month-display');
+    if (!grid) return;
 
-    function addLog(msg) {
-        const time = new Date().toLocaleTimeString([], { hour12: false });
-        log.innerHTML += `<p>> [${time}] ${msg}</p>`;
-        log.scrollTop = log.scrollHeight;
+    grid.innerHTML = "";
+    const year = viewDate.getFullYear();
+    const month = viewDate.getMonth();
+    const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+    display.innerText = `${monthNames[month]} ${year}`;
+
+    const firstDay = new Date(year, month, 1).getDay();
+    const totalDays = new Date(year, month + 1, 0).getDate();
+
+    // 1. Spacers to align the 1st day correctly
+    for (let i = 0; i < firstDay; i++) {
+        grid.appendChild(document.createElement("div"));
     }
 
-    // 1. Calendar Generation
-    for (let i = 1; i <= 31; i++) {
-        const day = document.createElement('div');
-        day.className = 'date-cell' + (i === 17 ? ' today' : '');
-        day.innerText = i;
-        day.onclick = () => {
-            const dateStr = `Jan ${i}, 2026`;
-            document.getElementById('selected-date').innerText = `Active Selection: ${dateStr}`;
-            document.getElementById('modal-date-display').innerText = `For: ${dateStr}`;
-            addLog(`Selection Updated: ${dateStr}`);
-            document.querySelectorAll('.date-cell').forEach(c => c.classList.remove('today'));
-            day.classList.add('today');
+    // 2. Build the actual days
+    for (let d = 1; d <= totalDays; d++) {
+        const dateStr = `${monthNames[month]} ${d}, ${year}`;
+        const dayEl = document.createElement("div");
+        dayEl.className = "calendar-day-item";
+        dayEl.innerText = d;
+
+        if (selectedSlots.some(s => s.date === dateStr)) {
+            dayEl.classList.add("active-day");
+        }
+
+        dayEl.onclick = () => {
+            tempDate = dateStr;
+            document.getElementById('picking-date-display').innerText = dateStr;
+            document.getElementById('time-picker-modal').style.display = 'flex';
         };
-        grid.appendChild(day);
+        grid.appendChild(dayEl);
     }
+}
 
-    // 2. Search Box Logic
-    document.getElementById('main-search').addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-            const query = e.target.value.trim();
-            if (query) {
-                addLog(`Search Query: "${query}"`);
-                window.open(`https://www.google.com/search?q=${query}`, '_blank');
-            }
-        }
-    });
+// Clean UI Modal Logic
+function showNotice(title, msg, isConfirm = false, onConfirm = null) {
+    const modal = document.getElementById('status-modal');
+    document.getElementById('status-title').innerText = title;
+    document.getElementById('status-msg').innerText = msg;
+    const actions = document.getElementById('status-actions');
+    actions.innerHTML = "";
 
-    // 3. Modal Control
-    document.getElementById('init-booking').onclick = () => modal.style.display = 'flex';
-    document.getElementById('close-modal').onclick = () => {
-        modal.style.display = 'none';
-        document.getElementById('error-msg').style.display = 'none';
-    };
+    if (isConfirm) {
+        const b1 = document.createElement('button');
+        b1.innerText = "Abort"; b1.className = "nav-btn";
+        b1.onclick = () => modal.style.display = 'none';
+        const b2 = document.createElement('button');
+        b2.innerText = "Confirm"; b2.className = "action-btn"; b2.style.marginTop = "0";
+        b2.onclick = () => { modal.style.display = 'none'; if(onConfirm) onConfirm(); };
+        actions.append(b1, b2);
+        actions.style.display = "flex"; actions.style.gap = "10px";
+    } else {
+        const b = document.createElement('button');
+        b.innerText = "OK"; b.className = "action-btn";
+        b.onclick = () => modal.style.display = 'none';
+        actions.append(b);
+    }
+    modal.style.display = 'flex';
+}
 
-    // 4. Form Validation
-    document.getElementById('confirm-booking').onclick = () => {
-        const name = document.getElementById('user-name').value.trim();
-        const desc = document.getElementById('user-desc').value.trim();
-        const error = document.getElementById('error-msg');
+// Global Modal Closer
+window.closeModals = () => document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none');
 
-        if (!name || !desc) {
-            error.style.display = 'block';
-            addLog("VALIDATION ERROR: Data Incomplete.");
-            return;
-        }
-
-        error.style.display = 'none';
-        addLog(`SUCCESS: Protocol logged for ${name}`);
-        document.getElementById('form-container').style.display = 'none';
-        document.getElementById('success-view').style.display = 'block';
-
-        setTimeout(() => {
-            modal.style.display = 'none';
-            document.getElementById('form-container').style.display = 'block';
-            document.getElementById('success-view').style.display = 'none';
-            document.getElementById('user-name').value = '';
-            document.getElementById('user-desc').value = '';
-        }, 2000);
+// Time Picker Setup
+document.querySelectorAll('.time-option').forEach(btn => {
+    btn.onclick = () => {
+        selectedSlots.push({ date: tempDate, time: btn.getAttribute('data-time') });
+        document.getElementById('time-picker-modal').style.display = 'none';
+        document.getElementById('selected-date-text').innerText = `Buffer: ${selectedSlots.length} slots`;
+        renderCalendar();
     };
 });
 
-// Global Helpers
-window.triggerHandshake = (label, url) => {
-    document.getElementById('live-log').innerHTML += `<p>> [HANDSHAKE] Initialized: ${label}</p>`;
-    window.open(url, '_blank');
-};
+// Month Nav
+document.getElementById('prev-month').onclick = () => { viewDate.setMonth(viewDate.getMonth() - 1); renderCalendar(); };
+document.getElementById('next-month').onclick = () => { viewDate.setMonth(viewDate.getMonth() + 1); renderCalendar(); };
 
-window.triggerCopy = (text, element) => {
-    navigator.clipboard.writeText(text);
-    const hint = element.querySelector('.qr-hint');
-    hint.innerText = "COPIED!";
-    hint.style.color = "#32d74b";
-    document.getElementById('live-log').innerHTML += `<p>> [DATA] Endpoint Copied: ${text}</p>`;
-    setTimeout(() => {
-        hint.innerText = "Copy Email";
-        hint.style.color = "#888";
-    }, 2000);
-};
-
-document.addEventListener('DOMContentLoaded', () => {
-    const searchInput = document.getElementById('main-search');
-    const calendarGrid = document.getElementById('calendar-grid');
-    const log = document.getElementById('live-log');
-    const modal = document.getElementById('booking-modal');
-
-    function addLog(msg) {
-        log.innerHTML += `<p>> [${new Date().toLocaleTimeString()}] ${msg}</p>`;
-        log.scrollTop = log.scrollHeight;
-    }
-
-    // 1. Search Functionality
-    searchInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-            const query = searchInput.value.trim();
-            if (query) {
-                addLog(`Search: "${query}"`);
-                window.open(`https://www.google.com/search?q=${query}`, '_blank');
-            }
-        }
+// Final Trigger
+document.getElementById('init-booking').onclick = () => {
+    if (selectedSlots.length === 0) return showNotice("Alert", "Select a slot first.");
+    const list = selectedSlots.map(s => `• ${s.date} @ ${s.time}`).join("\n");
+    showNotice("Verify Protocol", `Confirm these slots?\n${list}`, true, () => {
+        showNotice("Success", "Protocol Initiated. Communication link established.");
+        selectedSlots = [];
+        renderCalendar();
     });
-
-    // 2. Full View Calendar Generation
-    for (let i = 1; i <= 31; i++) {
-        const day = document.createElement('div');
-        day.className = 'date-cell' + (i === 17 ? ' today' : '');
-        day.innerText = i;
-        day.onclick = () => {
-            document.getElementById('selected-date').innerText = `Active Selection: Jan ${i}, 2026`;
-            document.getElementById('modal-date-display').innerText = `For: Jan ${i}, 2026`;
-            addLog(`Selected Jan ${i}`);
-            document.querySelectorAll('.date-cell').forEach(c => c.classList.remove('today'));
-            day.classList.add('today');
-        };
-        calendarGrid.appendChild(day);
-    }
-
-    // 3. Modal & Validation
-    document.getElementById('init-booking').onclick = () => modal.style.display = 'flex';
-    document.getElementById('close-modal').onclick = () => modal.style.display = 'none';
-
-    document.getElementById('confirm-booking').onclick = () => {
-        const name = document.getElementById('user-name').value;
-        const desc = document.getElementById('user-desc').value;
-        if (!name || !desc) {
-            document.getElementById('error-msg').style.display = 'block';
-            addLog("Error: Validation Failed");
-        } else {
-            addLog(`Success: Booked by ${name}`);
-            document.getElementById('form-container').style.display = 'none';
-            document.getElementById('success-view').style.display = 'block';
-            setTimeout(() => { location.reload(); }, 2000);
-        }
-    };
-});
-
-// Global Helpers
-window.triggerHandshake = (l, u) => { window.open(u, '_blank'); };
-window.triggerCopy = (t, e) => {
-    navigator.clipboard.writeText(t);
-    e.querySelector('.qr-hint').innerText = "COPIED!";
 };
+
+// CRITICAL: Initialize on DOM Load
+document.addEventListener('DOMContentLoaded', renderCalendar);
